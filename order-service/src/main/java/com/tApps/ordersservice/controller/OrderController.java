@@ -2,6 +2,7 @@ package com.tApps.ordersservice.controller;
 
 import com.tApps.basedomainsservice.dto.Order;
 import com.tApps.basedomainsservice.dto.OrderEvent;
+import com.tApps.basedomainsservice.request.RequestOrder;
 import com.tApps.ordersservice.kafka.OrderProducer;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,13 +23,14 @@ public class OrderController {
     }
 
     @PostMapping("/order")
-    public String placeOrder(@RequestBody Order order){
+    public String placeOrder(@RequestBody RequestOrder requestOrder){
+        Order order = new Order();
         order.setOrderId(UUID.randomUUID().toString());
 
         OrderEvent orderEvent = new OrderEvent();
         orderEvent.setStatus("PENDING");
         orderEvent.setMessage("Order in pending state");
-        orderEvent.setOrder(new Order(order.getOrderId(), order.getName(), order.getQty(), order.getPrice()));
+        orderEvent.setOrder(new Order(order.getOrderId(), requestOrder.getName(), requestOrder.getQty(), requestOrder.getPrice()));
 
         orderProducer.sendMessage(orderEvent);
 
